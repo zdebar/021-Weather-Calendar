@@ -10,7 +10,7 @@ const fetchWeather = async (location: string) => {
       const data = await response.json();
 
       const { sunrise, sunset } = data.forecast.forecastday[0].astro;
-      const hourlyForecast = data.forecast.forecastday[0].hour.map((hour: any) => ({
+      const hourlyForecast = data.forecast.forecastday[0].hour.map((hour: { time: TimeRanges; temp_c: number; condition: { text: string; }; }) => ({
           time: hour.time,
           temp_c: hour.temp_c,
           condition: hour.condition.text
