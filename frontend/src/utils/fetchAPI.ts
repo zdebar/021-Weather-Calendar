@@ -1,23 +1,8 @@
+
 import dotenv from 'dotenv';
+import { WeatherResponse, ErrorResponse } from "../types/fetchTypes";
 dotenv.config();
 
-type HourlyForecast = {
-    temperature: number;
-    condition: number;
-    rain_mm: number;
-    cloudiness: number;
-};
-
-type WeatherResponse = {
-    sunrise: number;
-    sunset: number;
-    noonShift: number;
-    hourlyForecast: HourlyForecast[];
-};
-
-type ErrorResponse = {
-    error: string;
-};
 
 /**
  * Converts a time in the format "hh:mm AM/PM" to a degree position on a 24-hour circle.
