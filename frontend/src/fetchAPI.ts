@@ -26,7 +26,7 @@ type ErrorResponse = {
  * @param {string} time - The time in "hh:mm AM/PM" format.
  * @returns {number} - The position in degrees on the circle (0 to 360 degrees).
  */
-function convertToDegrees(time: string): number {
+export function convertToDegrees(time: string): number {
     const [hour, minute, period] = time.match(/(\d+):(\d+) (\w+)/)!.slice(1);
     let hour24 = parseInt(hour, 10);
     if (period === "PM" && hour24 !== 12) hour24 += 12;
@@ -40,7 +40,7 @@ function convertToDegrees(time: string): number {
  * @param {number} sunset - in degrees
  * @returns {number} - in degrees
  */
-function getNoonInDegrees(sunrise: number, sunset: number): number {
+export function getNoonInDegrees(sunrise: number, sunset: number): number {
     return (sunrise + sunset) / 2;
 }
 
