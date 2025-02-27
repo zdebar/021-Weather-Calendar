@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 type HourlyForecast = {
     temperature: number;
     condition: number;
@@ -37,7 +40,7 @@ function convertToDegrees(time: string): number {
  * @param {number} sunset - in degrees
  * @returns {number} - in degrees
  */
-function getNoonShift(sunrise: number, sunset: number): number {
+function getNoonInDegrees(sunrise: number, sunset: number): number {
     return (sunrise + sunset) / 2;
 }
 
@@ -61,13 +64,13 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
             temperature: hour.temp_c,
             condition: hour.condition.code,
             rain_mm: hour.precip_mm,
-            cloudiness: hour.cloud // as percentage cover
+            cloudiness: hour.cloud
         }));
 
         return {
             sunrise: sunrise,
             sunset: sunset,
-            noonShift: getNoonShift(sunrise, sunset),
+            noonShift: getNoonInDegrees(sunrise, sunset),
             hourlyForecast: hourlyForecast
         };
     } catch (error: unknown) {
