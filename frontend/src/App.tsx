@@ -1,26 +1,39 @@
-import { useState } from 'react'
-import './App.css'
-import React from 'react'
+import './App.css';
+import React from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const radius = 70; 
+  const numbers = Array.from({ length: 24 }, (_, i) => i);
 
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="container">
+      <svg width="100%" height="100%" viewBox="-100 -100 200 200" preserveAspectRatio="xMidYMid meet">
+        <circle cx="0" cy="0" r="80" stroke="black" strokeWidth="0.5" fill="none" />
+
+        {numbers.map((num) => {
+          const angle = ((num + 6) * 15) * (Math.PI / 180); 
+          const x = radius * Math.cos(angle);
+          const y = radius * Math.sin(angle);
+
+          return (
+            <text
+              key={num}
+              x={x}
+              y={y}
+              fontSize="8"
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {num}
+            </text>
+          );
+        })}
+      </svg>
+    </div>
+  );
 }
 
-export default App
+
+
+export default App;
+

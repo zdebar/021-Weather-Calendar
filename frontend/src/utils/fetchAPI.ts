@@ -1,7 +1,13 @@
-
-import dotenv from 'dotenv';
 import { WeatherResponse, ErrorResponse } from "../types/fetchTypes";
-dotenv.config();
+import dotenv from 'dotenv';
+import path from "path";
+import { fileURLToPath } from "url";
+import saveJsonToFile from "./saveJsonToFile";
+import saveToIndexedDB from "./saveToIndexedDB";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+console.log(process.env.WEATHER_API_KEY);
 
 
 /**
@@ -36,15 +42,28 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
     }
 
     const BASE_URL = "http://api.weatherapi.com/v1/forecast.json";
-    const url = `${BASE_URL}?key=${API_KEY}&q=${location}&days=1&aqi=no&alerts=no`;
+    const url = `${BASE_URL}?key=${API_KEY}&q=${location}&days=2&aqi=no&alerts=no`;
 
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
 
+        // Získání současného času
+        const currentDate = new Date();
+        const currentHour = currentDate.getHours();
+     
+        const todayHours = data.forecast.forecastday[0].hour.slice(currentHour);
+        let next24Hours = todayHours;
+
+        if (next24Hours.length < 24) {
+            const tomorrowHours = data.forecast.forecastday[1].hour.slice(0, 24 - next24Hours.length);
+            next24Hours = next24Hours.concat(tomorrowHours);
+        }
+
         const sunrise = convertToDegrees(data.forecast.forecastday[0].astro.sunrise);
         const sunset = convertToDegrees(data.forecast.forecastday[0].astro.sunset);
+        const noonShift = getNoonInDegrees(sunrise, sunset);
         const hourlyForecast = data.forecast.forecastday[0].hour.map((hour: { temp_c: number; condition: { code: number; }; precip_mm: number; cloud: number; }) => ({
             temperature: hour.temp_c,
             condition: hour.condition.code,
@@ -55,7 +74,7 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
         return {
             sunrise: sunrise,
             sunset: sunset,
-            noonShift: getNoonInDegrees(sunrise, sunset),
+            noonShift: noonShift,
             hourlyForecast: hourlyForecast
         };
     } catch (error: unknown) {
@@ -66,4 +85,18 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
     }
 }
 
-console.log(await fetchWeather("Prague"))
+const forecast = await fetchWeather("Prague");
+console.log(forecast);
+
+// async function saveData() {
+//     try {
+//         const savePath = "../assets/test/forecast.json";
+//         saveJsonToFile(savePath, forecast);
+//         saveToIndexedDB("Weather", "Forecast", forecast);
+//         console.log("Data saved successfully.");
+//     } catch (error) {
+//         console.error("Error saving data:", error);
+//     }
+// };
+
+// saveData();
