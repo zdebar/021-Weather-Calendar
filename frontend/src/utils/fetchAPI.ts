@@ -1,14 +1,5 @@
 import { WeatherResponse, ErrorResponse } from "../types/fetchTypes";
-import dotenv from 'dotenv';
-import path from "path";
-import { fileURLToPath } from "url";
-import saveJsonToFile from "./saveJsonToFile";
 import saveToIndexedDB from "./saveToIndexedDB";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
-console.log(process.env.WEATHER_API_KEY);
-
 
 /**
  * Converts a time in the format "hh:mm AM/PM" to a degree position on a 24-hour circle.
@@ -17,7 +8,7 @@ console.log(process.env.WEATHER_API_KEY);
  * @param {string} time - The time in "hh:mm AM/PM" format.
  * @returns {number} - The position in degrees on the circle (0 to 360 degrees).
  */
-export function convertToDegrees(time: string): number {
+function convertToDegrees(time: string): number {
     const [hour, minute, period] = time.match(/(\d+):(\d+) (\w+)/)!.slice(1);
     let hour24 = parseInt(hour, 10);
     if (period === "PM" && hour24 !== 12) hour24 += 12;
@@ -26,17 +17,23 @@ export function convertToDegrees(time: string): number {
 }
 
 /**
- * Calculates the position of astronomical noon
+ * Calculates the position of astronomical noon.
  * @param {number} sunrise - in degrees
  * @param {number} sunset - in degrees
  * @returns {number} - in degrees
  */
-export function getNoonInDegrees(sunrise: number, sunset: number): number {
+function getNoonInDegrees(sunrise: number, sunset: number): number {
     return (sunrise + sunset) / 2;
 }
 
-export default async function fetchWeather(location: string): Promise<WeatherResponse | ErrorResponse> {
-    const API_KEY = process.env.WEATHER_API_KEY;
+/**
+ * Fetches weather forecast from WeatherAPI.
+ * 
+ * @param {string} location - The location for which to fetch the weather data.
+ * @returns {Promise<WeatherResponse | ErrorResponse>} - The weather data or error response.
+ */
+export async function fetchWeather(location: string): Promise<WeatherResponse | ErrorResponse> {
+    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
     if (!API_KEY) {
         throw new Error("API key is not defined in the environment variables.");
     }
@@ -86,18 +83,25 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
     }
 }
 
-const forecast = await fetchWeather("Prague");
-console.log(forecast);
+/**
+ * Fetches weather forecast data and saves them to IndexedDB.
+ * 
+ * @returns {Promise<void>} - A promise that resolves when data is saved.
+ */
+export async function getWeather(): Promise<void> {
+    try {
+        const forecast = await fetchWeather("Prague");
 
-// async function saveData() {
-//     try {
-//         const savePath = "../assets/test/forecast.json";
-//         saveJsonToFile(savePath, forecast);
-//         saveToIndexedDB("Weather", "Forecast", forecast);
-//         console.log("Data saved successfully.");
-//     } catch (error) {
-//         console.error("Error saving data:", error);
-//     }
-// };
+        // Check if forecast has error
+        if ("error" in forecast) {
+            console.error("Failed to fetch weather data:", forecast.error);
+            return;
+        }
 
-// saveData();
+        // Save data to IndexedDB
+        saveToIndexedDB("Weather", "Forecast", forecast);
+        console.log("Data saved successfully.");
+    } catch (error) {
+        console.error("Error saving data:", error);
+    }
+}

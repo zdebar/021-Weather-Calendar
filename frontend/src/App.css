@@ -5,9 +5,14 @@
   text-align: center;
 }
 
-.container {
-  border: blue dashed 1px;
+.row {
   width: 500px;
-  height: 500px;
-  margin: auto;
+  height: 50px;
 }
+
+/* Test style */
+.app * {
+  border: blue 1px dotted;
+  box-sizing: border-box;
+}
+
