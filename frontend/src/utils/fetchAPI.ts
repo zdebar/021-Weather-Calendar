@@ -49,18 +49,19 @@ export default async function fetchWeather(location: string): Promise<WeatherRes
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
 
-        // Získání současného času
+        // Get Current Time
         const currentDate = new Date();
         const currentHour = currentDate.getHours();
      
+        // Get forecast for sliding 24 hours
         const todayHours = data.forecast.forecastday[0].hour.slice(currentHour);
         let next24Hours = todayHours;
-
         if (next24Hours.length < 24) {
             const tomorrowHours = data.forecast.forecastday[1].hour.slice(0, 24 - next24Hours.length);
             next24Hours = next24Hours.concat(tomorrowHours);
         }
 
+        // Extract requested data
         const sunrise = convertToDegrees(data.forecast.forecastday[0].astro.sunrise);
         const sunset = convertToDegrees(data.forecast.forecastday[0].astro.sunset);
         const noonShift = getNoonInDegrees(sunrise, sunset);

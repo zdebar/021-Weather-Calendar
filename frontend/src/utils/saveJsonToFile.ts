@@ -1,12 +1,12 @@
-import { writeFile } from "fs/promises";
+import { writeFile } from "fs/promises"
+import logger from "./logger";
 
 export default async function saveJsonToFile(filename: string, data: unknown): Promise<void> {
   try {
-    const jsonString = JSON.stringify(data, null, 2); // Pretty formatting
+    const jsonString = JSON.stringify(data, null, 2);
     await writeFile(filename, jsonString, "utf8");
-    console.log(`File saved: ${filename}`);
+    logger.info("Data saved successfully.");
   } catch (error) {
-    console.error(`Error saving file: ${error}`);
-    throw error;
+    logger.error("Error saving data:", error);
   }
 }

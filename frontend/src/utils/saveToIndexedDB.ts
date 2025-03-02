@@ -23,7 +23,6 @@ export default function saveToIndexedDB(dbName: string, storeName: string, data:
     const transaction = db.transaction(storeName, 'readwrite');
     const store = transaction.objectStore(storeName);
 
-    // Add data to the store
     const addRequest = store.add(data);
 
     addRequest.onsuccess = () => {
